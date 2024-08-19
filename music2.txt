@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+ <style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(to right, #00d0ff, #a902fc);
+        margin: 0;
+    }
+
+    .player {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.3);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+    }
+
+    #fileInput {
+        height:21.5px;
+        width:200px;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.3);
+        
+    }
+
+    #playlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #playlist li {
+        margin: 10px 0;
+        cursor: pointer;
+        font-size: 14px;
+        color: #007bff;
+    }
+
+    #playlist li:hover {
+        text-decoration: underline;
+        color:rgb(89, 86, 255);
+    }
+
+    .controls {
+        margin-top: 20px;
+    }
+
+    .controls button {
+        font-size: 16px;
+        margin: 0 5px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        background: linear-gradient(#02dcfe, #006ff7);
+        box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+        cursor: pointer;
+    }
+
+    .controls button:disabled {
+        background-color: #e20808;
+        cursor: not-allowed;
+    }
+
+    #audioPlayer {
+        width:400px;
+        box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+    }
+ 
+    .list{
+        
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+    }
+
+
+
+ </style>
+<body>
+    <div class="player">
+        <input type="file" id="fileInput" multiple>
+        <div class="list">
+        <ul id="playlist"></ul>
+        </div>
+        <audio id="audioPlayer" controls></audio>
+        <div class="controls">
+            <button id="prevBtn">Previous</button>
+            <button id="playPauseBtn">Play</button>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const playlist = document.getElementById('playlist');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            
+            let files = [];
+            let currentIndex = 0;
+
+            fileInput.addEventListener('change', function(event) {
+                const selectedFiles = event.target.files;
+                files = Array.from(selectedFiles);
+                currentIndex = 0;
+                updatePlaylist();
+                if (files.length > 0) {
+                    playSong(currentIndex);
+                }
+            });
+
+            function updatePlaylist() {
+                playlist.innerHTML = '';
+                files.forEach((file, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = file.name;
+                    li.addEventListener('click', () => {
+                        currentIndex = index;
+                        playSong(currentIndex);
+                    });
+                    playlist.appendChild(li);
+                });
+            }
+
+            function playSong(index) {
+                if (files.length === 0) return;
+                const file = files[index];
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                audioPlayer.play();
+                playPauseBtn.textContent = 'Pause';
+            }
+
+            function playPause() {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseBtn.textContent = 'Pause';
+                } else {
+                    audioPlayer.pause();
+                    playPauseBtn.textContent = 'Play';
+                }
+            }
+
+            function nextSong() {
+                if (files.length === 0) return;
+                currentIndex = (currentIndex + 1) % files.length;
+                playSong(currentIndex);
+            }
+
+            function prevSong() {
+                if (files.length === 0) return;
+                currentIndex = (currentIndex - 1 + files.length) % files.length;
+                playSong(currentIndex);
+            }
+
+            playPauseBtn.addEventListener('click', playPause);
+            nextBtn.addEventListener('click', nextSong);
+            prevBtn.addEventListener('click', prevSong);
+
+            audioPlayer.addEventListener('ended', nextSong);
+        });
+    </script>
+</body>
+</html>
